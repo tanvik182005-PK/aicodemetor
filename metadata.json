@@ -1,0 +1,5 @@
+{
+  "name": "Hindsight AI Coding Mentor",
+  "description": "An advanced coding mentor that uses hindsight memory to track your progress and mistakes across multiple languages.",
+  "requestFramePermissions": []
+}

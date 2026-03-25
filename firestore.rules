@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "kalpeshharmale0@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUserHistory(data) {
+      return data.uid is string &&
+             data.mistakeHistory is list &&
+             data.languagesWithProficiency is map &&
+             data.behaviorData is string &&
+             data.attemptHistory is list &&
+             data.weakTopics is list;
+    }
+
+    function isValidProblem(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             data.statement is string && data.statement.size() > 0 && data.statement.size() < 2000 &&
+             data.difficulty in ['Beginner', 'Intermediate', 'Advanced'] &&
+             data.initialCode is map &&
+             data.createdBy is string &&
+             data.createdAt is number;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserHistory(request.resource.data);
+      allow update: if isOwner(userId) && isValidUserHistory(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /problems/{problemId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.createdBy == request.auth.uid && isValidProblem(request.resource.data);
+      allow update: if isAuthenticated() && resource.data.createdBy == request.auth.uid && isValidProblem(request.resource.data);
+      allow delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}

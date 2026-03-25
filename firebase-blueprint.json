@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "UserHistory": {
+      "title": "User History",
+      "description": "Stores user's coding history, mistakes, and proficiency levels.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "mistakeHistory": { "type": "array", "items": { "type": "string" } },
+        "languagesWithProficiency": { "type": "object" },
+        "behaviorData": { "type": "string" },
+        "attemptHistory": { "type": "array", "items": { "type": "object" } },
+        "weakTopics": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["uid"]
+    },
+    "Problem": {
+      "title": "Problem",
+      "description": "A coding problem created by a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "statement": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced"] },
+        "initialCode": { "type": "object" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "title", "statement", "difficulty", "createdBy"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserHistory",
+      "description": "User profile and history data."
+    },
+    "/problems/{problemId}": {
+      "schema": "Problem",
+      "description": "Coding problems created by users."
+    }
+  }
+}
